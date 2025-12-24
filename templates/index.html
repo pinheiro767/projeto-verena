@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VERENA - Apoio ao Cuidador</title>
+    <style>
+        /* --- ESTILOS GERAIS --- */
+        body { font-family: 'Segoe UI', 'Roboto', sans-serif; background: #eef2f7; display: flex; justify-content: center; height: 100vh; margin: 0; }
+        .container { width: 100%; max-width: 700px; background: white; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
+        /* --- CABEÇALHO --- */
+        .header { background: #005c97; background: linear-gradient(to right, #005c97, #363795); color: white; padding: 20px; display: flex; align-items: center; gap: 15px; }
+        .header-img { width: 50px; height: 50px; border-radius: 50%; border: 2px solid white; }
+        .header h1 { margin: 0; font-size: 22px; }
+        .header p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.9; }
+
+        /* --- ÁREA DO CHAT --- */
+        .chat-box { flex: 1; padding: 20px; overflow-y: auto; background: #f8f9fa; scroll-behavior: smooth; }
+        
+        /* --- MENSAGENS --- */
+        .message-container { display: flex; align-items: flex-start; margin-bottom: 20px; }
+        .bot-container { justify-content: flex-start; }
+        .user-container { justify-content: flex-end; }
+        
+        /* O rosto da Verena nas mensagens */
+        .avatar { width: 45px; height: 45px; border-radius: 50%; margin-right: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        
+        .msg { padding: 15px; border-radius: 18px; max-width: 75%; line-height: 1.5; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .bot-msg { background: white; color: #333; border-top-left-radius: 4px; }
+        .user-msg { background: #dcf8c6; color: #111; border-top-right-radius: 4px; }
+        
+        /* --- ÁREA DE DIGITAR --- */
+        .input-area { padding: 20px; border-top: 1px solid #eee; display: flex; gap: 10px; background: white; }
+        input { flex: 1; padding: 15px; border: 1px solid #ddd; border-radius: 30px; outline: none; font-size: 15px; }
+        button { padding: 15px 25px; background: #005c97; color: white; border: none; border-radius: 30px; cursor: pointer; font-weight: bold; transition: background 0.3s; }
+        button:hover { background: #004a7c; }
+        .erro { color: #721c24; background: #f8d7da; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://cdn-icons-png.flaticon.com/512/3408/3408455.png" alt="Verena" class="header-img">
+            <div>
+                <h1>VERENA</h1>
+                <p>Assistente de Apoio ao Cuidador</p>
+            </div>
+        </div>
+
+        <div id="chat" class="chat-box">
+            <div class="message-container bot-container">
+                <img src="https://cdn-icons-png.flaticon.com/512/3408/3408455.png" class="avatar">
+                <div class="msg bot-msg">Olá! Sou a Verena, sua assistente virtual. Estou aqui para oferecer apoio técnico e emocional na sua jornada de cuidado. Como posso ajudar hoje?</div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="campo" placeholder="Digite sua dúvida ou desabafo..." onkeypress="if(event.key === 'Enter') enviar()">
+            <button onclick="enviar()">Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        // LINK DA FOTO (para usar no Javascript também)
+        const avatarUrl = "https://cdn-icons-png.flaticon.com/512/3408/3408455.png";
+
+        async function enviar() {
+            let campo = document.getElementById('campo');
+            let texto = campo.value;
+            if (texto === "") return;
+            let chat = document.getElementById('chat');
+
+            // 1. Mostra a mensagem do usuário (sem foto, alinhada à direita)
+            chat.innerHTML += `
+                <div class="message-container user-container">
+                    <div class="msg user-msg">${texto}</div>
+                </div>`;
+            campo.value = '';
+            chat.scrollTop = chat.scrollHeight;
+
+            try {
+                const response = await fetch('/processar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ msg: texto })
+                });
+                const data = await response.json();
+
+                // 2. Mostra a resposta da Verena COM A FOTO
+                chat.innerHTML += `
+                    <div class="message-container bot-container">
+                        <img src="${avatarUrl}" class="avatar">
+                        <div class="msg bot-msg">${data.resposta}</div>
+                    </div>`;
+
+            } catch (error) {
+                chat.innerHTML += `<div class="msg bot-msg erro">Erro de conexão. Detalhe: ${error}</div>`;
+            }
+            chat.scrollTop = chat.scrollHeight;
+        }
+    </script>
+</body>
+</html>
