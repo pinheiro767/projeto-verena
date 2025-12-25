@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#005b96">
-    <meta name="apple-mobile-web-app-status-bar-style" content="#005b96">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-    <title>Verena - Assistente Inteligente</title>
+    <title>Verena - Assistente Falante</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -17,6 +15,7 @@
             --balao-user: #005b96;
             --balao-ia: #ffffff;
             --vermelho-gravando: #e74c3c;
+            --verde-som: #4cd137;
         }
 
         body {
@@ -59,18 +58,27 @@
         .header h1 { margin: 0; font-size: 1.3rem; }
         .header p { margin: 0; font-size: 0.85rem; opacity: 0.9; }
 
-        .controles-header { display: flex; gap: 10px; }
+        /* Controles do Topo */
+        .controles-header { display: flex; gap: 10px; align-items: center; }
 
         .btn-header {
             background: rgba(255,255,255,0.2);
             border: 1px solid rgba(255,255,255,0.4);
-            color: white; padding: 8px;
+            color: white; padding: 10px;
             border-radius: 50%; cursor: pointer;
             transition: background 0.3s;
             display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+            width: 40px; height: 40px;
         }
         .btn-header:hover { background: rgba(255,255,255,0.4); }
-        .som-ativo { background-color: #4cd137 !important; border-color: #4cd137; }
+        
+        /* Estilo quando o som está LIGADO */
+        .som-ativo { 
+            background-color: var(--verde-som) !important; 
+            border-color: var(--verde-som) !important; 
+            box-shadow: 0 0 10px rgba(76, 209, 55, 0.5);
+        }
 
         .chat-box {
             flex: 1; padding: 20px; overflow-y: auto;
@@ -99,6 +107,7 @@
             color: var(--azul-saude); border: none; background: transparent;
         }
         .btn-icon:hover { background-color: #eef; }
+        .btn-icon svg { width: 24px; height: 24px; }
         
         .gravando {
             background-color: var(--vermelho-gravando) !important;
@@ -138,18 +147,23 @@
                 <p>Especialista em Saúde</p>
             </div>
         </div>
+        
         <div class="controles-header">
-            <button id="btn-som" class="btn-header" onclick="alternarSom()" title="Ativar/Desativar Voz da Verena">
+            <button id="btn-som" class="btn-header" onclick="alternarSom()" title="Ligar Voz">
                 🔇
             </button>
-            <button class="btn-header" onclick="novaConversa()" title="Limpar">🧹</button>
+            
+            <button class="btn-header" onclick="novaConversa()" title="Limpar Conversa">
+                🧹
+            </button>
         </div>
     </div>
 
     <div class="chat-box" id="chat-box">
         <div class="mensagem verena">
-            Olá! Sou a Verena. 🧠<br>
-            Ative o som (🔇) lá em cima se quiser que eu fale com você!
+            Olá! Sou a Verena. 🧠<br><br>
+            <strong>Toque no botão de som (🔇) lá em cima</strong> se quiser me ouvir falando!<br>
+            Estou pronta para ler exames, bulas ou tirar dúvidas.
         </div>
     </div>
     
@@ -157,12 +171,12 @@
 
     <div class="input-area">
         <label for="file-input" class="btn-icon" title="Anexar Imagem">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" /></svg>
         </label>
         <input type="file" id="file-input" accept="image/*">
         
         <button id="btn-mic" class="btn-icon" onclick="alternarGravacao()" title="Falar">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z" /></svg>
         </button>
 
         <div id="file-alert" class="file-alert">📸 Imagem <span onclick="limparImagem()" style="color:red;cursor:pointer">✖</span></div>
@@ -175,21 +189,20 @@
 <script>
     let imagemBase64 = null;
     let mimeType = null;
-    let somAtivo = false; // Começa mudo
+    let somAtivo = false;
 
-    // --- SINTESE DE VOZ (FALA) ---
+    // --- FUNÇÃO DE FALA (TTS) ---
     function falarTexto(textoHTML) {
         if (!somAtivo) return;
 
-        // Limpa tags HTML (tira os <br> e <b>) para ler só o texto
+        // Limpa o texto para a voz não ler códigos
         let div = document.createElement("div");
         div.innerHTML = textoHTML;
         let textoLimpo = div.textContent || div.innerText || "";
 
-        // Configura a voz
         let fala = new SpeechSynthesisUtterance(textoLimpo);
         fala.lang = "pt-BR";
-        fala.rate = 1.1; // Um pouco mais rápido que o normal
+        fala.rate = 1.1; 
         window.speechSynthesis.speak(fala);
     }
 
@@ -197,17 +210,17 @@
         somAtivo = !somAtivo;
         const btn = document.getElementById('btn-som');
         if (somAtivo) {
-            btn.innerText = "🔊";
-            btn.classList.add("som-ativo");
-            falarTexto("Modo de voz ativado.");
+            btn.innerText = "🔊"; // Muda ícone para som ligado
+            btn.classList.add("som-ativo"); // Fica verde
+            falarTexto("Voz ativada.");
         } else {
             btn.innerText = "🔇";
             btn.classList.remove("som-ativo");
-            window.speechSynthesis.cancel(); // Para de falar
+            window.speechSynthesis.cancel();
         }
     }
 
-    // --- RECONHECIMENTO DE VOZ (MICROFONE) ---
+    // --- MICROFONE ---
     const btnMic = document.getElementById('btn-mic');
     const userInput = document.getElementById('user-input');
     let recognition = null;
@@ -229,7 +242,6 @@
             estaGravando = false;
             btnMic.classList.remove('gravando');
             userInput.placeholder = "Digite ou fale...";
-            // Se o som estiver ativo, envia direto
             if(userInput.value.trim() !== "") enviarMensagem();
         };
 
@@ -245,15 +257,15 @@
         else recognition.start();
     }
 
-    // --- CHAT E LÓGICA GERAL ---
+    // --- SISTEMA DE CHAT ---
     const chatBox = document.getElementById('chat-box');
     const loading = document.getElementById('loading');
     const fileInput = document.getElementById('file-input');
     const fileAlert = document.getElementById('file-alert');
 
     function novaConversa() {
-        if(confirm("Limpar tudo?")) {
-            chatBox.innerHTML = '<div class="mensagem verena">Histórico limpo! ✨</div>';
+        if(confirm("Deseja apagar tudo?")) {
+            chatBox.innerHTML = '<div class="mensagem verena">Histórico limpo! 🧹</div>';
             limparImagem();
             userInput.value = '';
         }
@@ -301,10 +313,7 @@
             loading.style.display = 'none';
             chatBox.innerHTML += `<div class="mensagem verena">${data.resposta}</div>`;
             chatBox.scrollTop = chatBox.scrollHeight;
-            
-            // A MÁGICA: A VERENA FALA AQUI
-            falarTexto(data.resposta);
-            
+            falarTexto(data.resposta); // Verena fala aqui!
             limparImagem();
         })
         .catch(err => {
