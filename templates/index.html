@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verena - Assistente por Voz</title>
+    <title>Verena - Assistente Multimodal</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -104,7 +104,7 @@
         .btn-mic:hover { background-color: #eef; color: var(--azul-saude); }
         .btn-mic svg { width: 24px; height: 24px; }
 
-        /* Animação quando está gravando */
+        /* Animação quando está gravando (Pulsar vermelho) */
         .gravando {
             background-color: var(--vermelho-gravando) !important;
             color: white !important;
@@ -151,7 +151,7 @@
         <div class="mensagem verena">
             Olá! Sou a Verena. 🎙️🧠<br><br>
             <strong>Novidade:</strong> Agora você pode falar comigo!<br>
-            Clique no microfone (🎤) para ditar sua dúvida ou use o clipe (📎) para exames.
+            Clique no microfone (🎤) para ditar sua dúvida.
         </div>
     </div>
     
@@ -184,17 +184,18 @@
     let imagemBase64 = null;
     let mimeType = null;
     
-    // --- LÓGICA DE RECONHECIMENTO DE VOZ ---
+    // --- LÓGICA DE RECONHECIMENTO DE VOZ (Javascript) ---
     const btnMic = document.getElementById('btn-mic');
     const userInput = document.getElementById('user-input');
     let recognition = null;
     let estaGravando = false;
 
-    // Verifica se o navegador suporta
-    if ('webkitSpeechRecognition' in window) {
-        recognition = new webkitSpeechRecognition();
+    // Verifica se o navegador tem o recurso (Chrome/Edge/Android)
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
         recognition.lang = 'pt-BR'; // Português Brasil
-        recognition.continuous = false; // Para quando parar de falar
+        recognition.continuous = false; 
         recognition.interimResults = false;
 
         recognition.onstart = function() {
@@ -211,18 +212,16 @@
 
         recognition.onresult = function(event) {
             const textoFalado = event.results[0][0].transcript;
-            userInput.value = textoFalado;
-            // Opcional: Enviar automaticamente após falar
-            // enviarMensagem(); 
+            userInput.value = textoFalado; // Escreve o que você falou na caixa
         };
         
         recognition.onerror = function(event) {
-            console.error("Erro no reconhecimento:", event.error);
+            console.error("Erro no microfone:", event.error);
             estaGravando = false;
             btnMic.classList.remove('gravando');
         };
     } else {
-        btnMic.style.display = 'none'; // Esconde se não suportar (ex: Firefox antigo)
+        btnMic.style.display = 'none'; // Se não funcionar no navegador, esconde o botão
     }
 
     function alternarGravacao() {
@@ -237,7 +236,7 @@
         }
     }
 
-    // --- CÓDIGO ANTIGO (Chat e Imagem) ---
+    // --- CÓDIGO DO CHAT, IMAGEM E LIMPEZA ---
     const fileInput = document.getElementById('file-input');
     const fileAlert = document.getElementById('file-alert');
     const chatBox = document.getElementById('chat-box');
@@ -245,7 +244,7 @@
 
     function novaConversa() {
         if(confirm("Limpar histórico?")) {
-            chatBox.innerHTML = '<div class="mensagem verena">Histórico limpo! 🧹</div>';
+            chatBox.innerHTML = '<div class="mensagem verena">Histórico limpo! 🧹<br>Como posso ajudar agora?</div>';
             limparImagem();
             userInput.value = '';
         }
