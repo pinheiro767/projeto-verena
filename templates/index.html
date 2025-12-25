@@ -39,20 +39,43 @@
             padding: 15px 20px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            justify-content: space-between; /* Espalha os itens */
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
+        .perfil {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
         .header img {
             width: 55px;
             height: 55px;
             border-radius: 50%;
             border: 2px solid white;
             object-fit: cover;
+            object-position: top center;
         }
 
         .header h1 { margin: 0; font-size: 1.3rem; }
         .header p { margin: 0; font-size: 0.85rem; opacity: 0.9; }
+
+        /* Botão de Limpar (Nova Conversa) */
+        .btn-limpar {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.4);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-limpar:hover { background: rgba(255,255,255,0.4); }
 
         /* Área de Chat */
         .chat-box {
@@ -89,7 +112,6 @@
             border-bottom-right-radius: 2px;
         }
 
-        /* Prévia da Imagem no Chat */
         .img-preview-chat {
             max-width: 200px;
             border-radius: 8px;
@@ -98,7 +120,7 @@
             display: block;
         }
 
-        /* Rodapé (Input) */
+        /* Input */
         .input-area {
             padding: 15px;
             background: white;
@@ -108,7 +130,6 @@
             gap: 10px;
         }
 
-        /* Botão do Clipe */
         .btn-clip {
             cursor: pointer;
             padding: 8px;
@@ -122,9 +143,8 @@
         .btn-clip:hover { background-color: #eef; }
         .btn-clip svg { width: 26px; height: 26px; }
 
-        #file-input { display: none; } /* Esconde o input feio */
+        #file-input { display: none; } 
 
-        /* Aviso de imagem selecionada */
         .file-alert {
             display: none;
             font-size: 0.75rem;
@@ -171,26 +191,27 @@
 
 <div class="chat-container">
     <div class="header">
-        <img src="{{ url_for('static', filename='avatar.png') }}" alt="Verena" style="object-fit: cover; object-position: top center;">
-        <div>
-            <h1>Verena</h1>
-            <p>Especialista em Neurociência, Direito e Saúde</p>
+        <div class="perfil">
+            <img src="{{ url_for('static', filename='avatar.png') }}" alt="Verena">
+            <div>
+                <h1>Verena</h1>
+                <p>Especialista em Neurociência, Direito e Saúde</p>
+            </div>
         </div>
+        <button class="btn-limpar" onclick="novaConversa()" title="Apagar histórico">
+            🧹 Nova Conversa
+        </button>
     </div>
 
     <div class="chat-box" id="chat-box">
         <div class="mensagem verena">
             Olá! Sou a Verena. 🧠⚖️<br><br>
-            Agora tenho <strong>visão!</strong><br>
-            Você pode clicar no clipe (📎) e me enviar fotos de:<br>
-            • Exames médicos 📄<br>
-            • Bulas de remédio 💊<br>
-            • Lesões na pele ou ambiente do idoso 📸<br><br>
-            Vou analisar com base na ciência e nas leis. Como posso ajudar?
+            Estou pronta para analisar exames, orientar sobre direitos ou acolher suas dúvidas.<br>
+            Clique no clipe (📎) para enviar fotos ou digite abaixo.
         </div>
     </div>
     
-    <div class="loading" id="loading">Verena está lendo a imagem e pensando...</div>
+    <div class="loading" id="loading">Verena está analisando...</div>
 
     <div class="input-area">
         <label for="file-input" class="btn-clip" title="Anexar Imagem">
@@ -220,18 +241,28 @@
     const chatBox = document.getElementById('chat-box');
     const loading = document.getElementById('loading');
 
-    // Quando escolhe o arquivo
+    // --- FUNÇÃO NOVA: LIMPAR CONVERSA ---
+    function novaConversa() {
+        if(confirm("Deseja apagar o histórico e começar de novo?")) {
+            chatBox.innerHTML = `
+                <div class="mensagem verena">
+                    Histórico limpo! ✨<br>
+                    Pode enviar uma nova dúvida ou exame.
+                </div>
+            `;
+            limparImagem();
+            userInput.value = '';
+        }
+    }
+
     fileInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = function(evt) {
                 const resultado = evt.target.result;
-                // Separa o tipo (ex: image/png) do código (base64)
                 imagemBase64 = resultado.split(',')[1];
                 mimeType = resultado.split(';')[0].split(':')[1];
-                
-                // Mostra aviso
                 fileAlert.style.display = 'flex';
             };
             reader.readAsDataURL(file);
@@ -247,11 +278,8 @@
 
     function enviarMensagem() {
         const texto = userInput.value;
-        
-        // Impede envio vazio (tem que ter texto OU imagem)
         if (texto.trim() === "" && !imagemBase64) return;
 
-        // 1. Mostrar mensagem do usuário na tela
         let htmlUsuario = `<div class="mensagem usuario">`;
         if (imagemBase64) {
             htmlUsuario += `<img src="data:${mimeType};base64,${imagemBase64}" class="img-preview-chat"><br>`;
@@ -259,12 +287,10 @@
         htmlUsuario += `${texto}</div>`;
         chatBox.innerHTML += htmlUsuario;
         
-        // Limpar campo e rolar para baixo
         userInput.value = '';
         loading.style.display = 'block';
         chatBox.scrollTop = chatBox.scrollHeight;
 
-        // 2. Enviar para o Python (Backend)
         fetch('/processar', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -277,19 +303,16 @@
         .then(response => response.json())
         .then(data => {
             loading.style.display = 'none';
-            // Mostrar resposta da Verena
             chatBox.innerHTML += `<div class="mensagem verena">${data.resposta}</div>`;
             chatBox.scrollTop = chatBox.scrollHeight;
-            limparImagem(); // Limpa a imagem após enviar
+            limparImagem();
         })
         .catch(erro => {
             loading.style.display = 'none';
-            chatBox.innerHTML += `<div class="mensagem verena" style="color:red">Erro de conexão. Tente novamente.</div>`;
-            console.error(erro);
+            chatBox.innerHTML += `<div class="mensagem verena" style="color:red">Erro de conexão.</div>`;
         });
     }
 
-    // Permitir enviar com Enter
     userInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') enviarMensagem();
     });
