@@ -4,10 +4,13 @@ from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 import datetime
 
+# --- CONFIGURAÇÕES ---
 load_dotenv()
 API_KEY = os.getenv("MINHA_KEY")
 
 app = Flask(__name__)
+# Permitir uploads maiores (até 16MB) para fotos de exames
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 
 
 @app.route('/')
 def home():
@@ -16,45 +19,53 @@ def home():
 @app.route('/processar', methods=['POST'])
 def processar():
     dados = request.json
-    msg = dados.get('msg')
+    msg_texto = dados.get('msg', '')
+    img_b64 = dados.get('imagem')
+    img_tipo = dados.get('tipo')
     
-    # URL do modelo FLASH 2.0
+    # URL do modelo Google Gemini 2.0 Flash (Multimodal)
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
-    
     headers = {"Content-Type": "application/json"}
     
     ano_atual = datetime.datetime.now().year
     
-    # --- O PROMPT MESTRE (PSICOLOGIA, NEUROCIÊNCIA, LEIS E ECONOMIA) ---
+    # --- PROMPT MESTRE (CÉREBRO DA VERENA) ---
     prompt_sistema = f"""
-    ATUE COMO: VERENA (Virtual Especialista em Reabilitação, Enfermagem, Neurociência e Direito).
+    ATUE COMO: VERENA (Especialista em Neurociência, Leitura de Exames, Direito e Saúde).
     
-    SUA PERSONALIDADE E ABORDAGEM:
-    1. ACOLHIMENTO PSICOLÓGICO: Comece SEMPRE com empatia real. Valide a dor/cansaço do cuidador como um psicólogo faria. Use tom calmo.
-    2. NEUROCIÊNCIA INTEGRADA: Explique o comportamento ou sintoma baseando-se no funcionamento cerebral (ex: Lobo Frontal, Neurotransmissores, Sistema Límbico). Eduque o cuidador sobre o "porquê" biológico.
-    3. FARMÁCIA E SEGURANÇA: Se houver menção a remédios ou sintomas físicos, ALERTE sobre riscos de interação medicamentosa e efeitos colaterais.
-    4. REALIDADE FINANCEIRA (CRUCIAL): Ao dar dicas de bem-estar, considere que o idoso pode ter poucos recursos. Priorize soluções caseiras, criativas, gratuitas ou via SUS. Evite sugerir compras caras.
+    SEU OBJETIVO AO RECEBER UMA IMAGEM:
+    1. Se for EXAME MÉDICO: Leia os valores técnicos. Traduza o que significam para linguagem simples (ex: "Leucócitos altos indicam que o corpo está lutando contra uma infecção"). Nunca dê diagnóstico de doença fatal, sugira levar ao médico.
+    2. Se for BULA/REMÉDIO: Explique para que serve e cuidados (interação, horários).
+    3. Se for LESÃO/FERIDA: Descreva o aspecto (vermelhidão, necrose) e sugira cuidados de higiene, mas mande procurar enfermeiro/médico se for grave.
     
-    SUA BASE CIENTÍFICA (RIGOROSA):
-    - Use APENAS dados de 2020 a {ano_atual}.
-    - Cite artigos de Revistas Nacionais ou Internacionais de Alto Fator de Impacto (ex: The Lancet, JAMA, Cadernos de Saúde Pública, Nature Aging).
-    - OBRIGATÓRIO: Colocar o DOI ao final de cada citação científica.
+    SUA POSTURA GERAL (COM OU SEM FOTO):
+    - Acolha a emoção do cuidador (Psicologia).
+    - Explique a base biológica (Neurociência).
+    - Cite leis/direitos (Estatuto do Idoso/SUS).
+    - Use dados científicos recentes (2020-{ano_atual}) e cite DOI se possível.
+    - Considere a economia do idoso (soluções baratas).
     
-    PERGUNTA DO USUÁRIO: '{msg}'
-    
-    ESTRUTURA DA RESPOSTA:
-    1. 🧠 Acolhimento e Explicação Neurocientífica
-    2. 💊 Alertas de Saúde/Medicamentos (Se couber)
-    3. 💡 Dicas de Bem-Estar (Foco em baixo custo/criatividade)
-    4. ⚖️ Direitos (Leis Atuais)
-    5. 📚 Referências (Revista + Ano + DOI)
+    PERGUNTA DO USUÁRIO: '{msg_texto}'
     """
     
+    # Montar o pacote de dados
+    partes_conteudo = []
+    
+    # Adiciona o texto (prompt + pergunta)
+    partes_conteudo.append({"text": prompt_sistema})
+    
+    # SE TIVER IMAGEM, anexa ela no pacote
+    if img_b64 and img_tipo:
+        partes_conteudo.append({
+            "inline_data": {
+                "mime_type": img_tipo,
+                "data": img_b64
+            }
+        })
+
     payload = {
         "contents": [{
-            "parts": [{
-                "text": prompt_sistema
-            }]
+            "parts": partes_conteudo
         }]
     }
 
@@ -66,11 +77,11 @@ def processar():
             try:
                 texto_ia = resultado['candidates'][0]['content']['parts'][0]['text']
             except:
-                texto_ia = "Erro ao processar resposta."
-                
+                texto_ia = "Consegui ver a imagem, mas não soube interpretar. Tente uma foto mais nítida."
+            
             return jsonify({"resposta": texto_ia.replace('\n', '<br>')})
         else:
-            return jsonify({"resposta": f"Erro Google: {response.text}"})
+            return jsonify({"resposta": f"Erro no Google: {response.text}"})
             
     except Exception as e:
         return jsonify({"resposta": f"Erro interno: {str(e)}"})

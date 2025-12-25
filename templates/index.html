@@ -1,104 +1,299 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VERENA - Apoio ao Cuidador</title>
+    <title>Verena - Assistente Multimodal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* --- ESTILOS GERAIS --- */
-        body { font-family: 'Segoe UI', 'Roboto', sans-serif; background: #eef2f7; display: flex; justify-content: center; height: 100vh; margin: 0; }
-        .container { width: 100%; max-width: 700px; background: white; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        
-        /* --- CABEÇALHO --- */
-        .header { background: #005c97; background: linear-gradient(to right, #005c97, #363795); color: white; padding: 20px; display: flex; align-items: center; gap: 15px; }
-        .header-img { width: 50px; height: 50px; border-radius: 50%; border: 2px solid white; }
-        .header h1 { margin: 0; font-size: 22px; }
-        .header p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.9; }
+        :root {
+            --azul-saude: #005b96;
+            --fundo: #f4f7f6;
+            --balao-user: #005b96;
+            --balao-ia: #ffffff;
+        }
 
-        /* --- ÁREA DO CHAT --- */
-        .chat-box { flex: 1; padding: 20px; overflow-y: auto; background: #f8f9fa; scroll-behavior: smooth; }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--fundo);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .chat-container {
+            background-color: #fff;
+            width: 100%;
+            max-width: 850px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        /* Cabeçalho */
+        .header {
+            background-color: var(--azul-saude);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
         
-        /* --- MENSAGENS --- */
-        .message-container { display: flex; align-items: flex-start; margin-bottom: 20px; }
-        .bot-container { justify-content: flex-start; }
-        .user-container { justify-content: flex-end; }
-        
-        /* O rosto da Verena nas mensagens */
-        .avatar { width: 45px; height: 45px; border-radius: 50%; margin-right: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        
-        .msg { padding: 15px; border-radius: 18px; max-width: 75%; line-height: 1.5; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .bot-msg { background: white; color: #333; border-top-left-radius: 4px; }
-        .user-msg { background: #dcf8c6; color: #111; border-top-right-radius: 4px; }
-        
-        /* --- ÁREA DE DIGITAR --- */
-        .input-area { padding: 20px; border-top: 1px solid #eee; display: flex; gap: 10px; background: white; }
-        input { flex: 1; padding: 15px; border: 1px solid #ddd; border-radius: 30px; outline: none; font-size: 15px; }
-        button { padding: 15px 25px; background: #005c97; color: white; border: none; border-radius: 30px; cursor: pointer; font-weight: bold; transition: background 0.3s; }
-        button:hover { background: #004a7c; }
-        .erro { color: #721c24; background: #f8d7da; border: 1px solid #f5c6cb; }
+        .header img {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: 2px solid white;
+            object-fit: cover;
+        }
+
+        .header h1 { margin: 0; font-size: 1.3rem; }
+        .header p { margin: 0; font-size: 0.85rem; opacity: 0.9; }
+
+        /* Área de Chat */
+        .chat-box {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background-color: #f9f9f9;
+        }
+
+        .mensagem {
+            max-width: 80%;
+            padding: 15px;
+            border-radius: 12px;
+            line-height: 1.5;
+            position: relative;
+            font-size: 0.95rem;
+        }
+
+        .verena {
+            align-self: flex-start;
+            background-color: var(--balao-ia);
+            border: 1px solid #ddd;
+            color: #333;
+            border-bottom-left-radius: 2px;
+        }
+
+        .usuario {
+            align-self: flex-end;
+            background-color: var(--balao-user);
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        /* Prévia da Imagem no Chat */
+        .img-preview-chat {
+            max-width: 200px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 2px solid rgba(255,255,255,0.5);
+            display: block;
+        }
+
+        /* Rodapé (Input) */
+        .input-area {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Botão do Clipe */
+        .btn-clip {
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            color: var(--azul-saude);
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-clip:hover { background-color: #eef; }
+        .btn-clip svg { width: 26px; height: 26px; }
+
+        #file-input { display: none; } /* Esconde o input feio */
+
+        /* Aviso de imagem selecionada */
+        .file-alert {
+            display: none;
+            font-size: 0.75rem;
+            background-color: #e1f5fe;
+            color: var(--azul-saude);
+            padding: 5px 10px;
+            border-radius: 15px;
+            white-space: nowrap;
+            align-items: center;
+            gap: 5px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        button.btn-enviar {
+            background-color: var(--azul-saude);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button.btn-enviar:hover { background-color: #004a7a; }
+
+        .loading {
+            text-align: center;
+            font-style: italic;
+            color: #777;
+            font-size: 0.8rem;
+            display: none;
+            padding: 5px;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <img src="https://cdn-icons-png.flaticon.com/512/3408/3408455.png" alt="Verena" class="header-img">
-            <div>
-                <h1>VERENA</h1>
-                <p>Assistente de Apoio ao Cuidador</p>
-            </div>
-        </div>
 
-        <div id="chat" class="chat-box">
-            <div class="message-container bot-container">
-                <img src="https://cdn-icons-png.flaticon.com/512/3408/3408455.png" class="avatar">
-                <div class="msg bot-msg">Olá! Sou a Verena, sua assistente virtual. Estou aqui para oferecer apoio técnico e emocional na sua jornada de cuidado. Como posso ajudar hoje?</div>
-            </div>
-        </div>
-
-        <div class="input-area">
-            <input type="text" id="campo" placeholder="Digite sua dúvida ou desabafo..." onkeypress="if(event.key === 'Enter') enviar()">
-            <button onclick="enviar()">Enviar</button>
+<div class="chat-container">
+    <div class="header">
+        <img src="https://i.imgur.com/N1a7hXJ.png" alt="Verena Avatar">
+        <div>
+            <h1>Verena</h1>
+            <p>Especialista em Neurociência, Direito e Saúde</p>
         </div>
     </div>
 
-    <script>
-        // LINK DA FOTO (para usar no Javascript também)
-        const avatarUrl = "https://cdn-icons-png.flaticon.com/512/3408/3408455.png";
+    <div class="chat-box" id="chat-box">
+        <div class="mensagem verena">
+            Olá! Sou a Verena. 🧠⚖️<br><br>
+            Agora tenho <strong>visão!</strong><br>
+            Você pode clicar no clipe (📎) e me enviar fotos de:<br>
+            • Exames médicos 📄<br>
+            • Bulas de remédio 💊<br>
+            • Lesões na pele ou ambiente do idoso 📸<br><br>
+            Vou analisar com base na ciência e nas leis. Como posso ajudar?
+        </div>
+    </div>
+    
+    <div class="loading" id="loading">Verena está lendo a imagem e pensando...</div>
 
-        async function enviar() {
-            let campo = document.getElementById('campo');
-            let texto = campo.value;
-            if (texto === "") return;
-            let chat = document.getElementById('chat');
+    <div class="input-area">
+        <label for="file-input" class="btn-clip" title="Anexar Imagem">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
+            </svg>
+        </label>
+        <input type="file" id="file-input" accept="image/*">
+        
+        <div id="file-alert" class="file-alert">
+            📸 Imagem Anexada 
+            <span onclick="limparImagem()" style="cursor:pointer; font-weight:bold; color:red; margin-left:5px;">✖</span>
+        </div>
 
-            // 1. Mostra a mensagem do usuário (sem foto, alinhada à direita)
-            chat.innerHTML += `
-                <div class="message-container user-container">
-                    <div class="msg user-msg">${texto}</div>
-                </div>`;
-            campo.value = '';
-            chat.scrollTop = chat.scrollHeight;
+        <input type="text" id="user-input" placeholder="Digite aqui...">
+        <button class="btn-enviar" onclick="enviarMensagem()">Enviar</button>
+    </div>
+</div>
 
-            try {
-                const response = await fetch('/processar', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ msg: texto })
-                });
-                const data = await response.json();
+<script>
+    let imagemBase64 = null;
+    let mimeType = null;
 
-                // 2. Mostra a resposta da Verena COM A FOTO
-                chat.innerHTML += `
-                    <div class="message-container bot-container">
-                        <img src="${avatarUrl}" class="avatar">
-                        <div class="msg bot-msg">${data.resposta}</div>
-                    </div>`;
+    const fileInput = document.getElementById('file-input');
+    const fileAlert = document.getElementById('file-alert');
+    const userInput = document.getElementById('user-input');
+    const chatBox = document.getElementById('chat-box');
+    const loading = document.getElementById('loading');
 
-            } catch (error) {
-                chat.innerHTML += `<div class="msg bot-msg erro">Erro de conexão. Detalhe: ${error}</div>`;
-            }
-            chat.scrollTop = chat.scrollHeight;
+    // Quando escolhe o arquivo
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const resultado = evt.target.result;
+                // Separa o tipo (ex: image/png) do código (base64)
+                imagemBase64 = resultado.split(',')[1];
+                mimeType = resultado.split(';')[0].split(':')[1];
+                
+                // Mostra aviso
+                fileAlert.style.display = 'flex';
+            };
+            reader.readAsDataURL(file);
         }
-    </script>
+    });
+
+    function limparImagem() {
+        fileInput.value = '';
+        imagemBase64 = null;
+        mimeType = null;
+        fileAlert.style.display = 'none';
+    }
+
+    function enviarMensagem() {
+        const texto = userInput.value;
+        
+        // Impede envio vazio (tem que ter texto OU imagem)
+        if (texto.trim() === "" && !imagemBase64) return;
+
+        // 1. Mostrar mensagem do usuário na tela
+        let htmlUsuario = `<div class="mensagem usuario">`;
+        if (imagemBase64) {
+            htmlUsuario += `<img src="data:${mimeType};base64,${imagemBase64}" class="img-preview-chat"><br>`;
+        }
+        htmlUsuario += `${texto}</div>`;
+        chatBox.innerHTML += htmlUsuario;
+        
+        // Limpar campo e rolar para baixo
+        userInput.value = '';
+        loading.style.display = 'block';
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // 2. Enviar para o Python (Backend)
+        fetch('/processar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                msg: texto,
+                imagem: imagemBase64,
+                tipo: mimeType
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            loading.style.display = 'none';
+            // Mostrar resposta da Verena
+            chatBox.innerHTML += `<div class="mensagem verena">${data.resposta}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+            limparImagem(); // Limpa a imagem após enviar
+        })
+        .catch(erro => {
+            loading.style.display = 'none';
+            chatBox.innerHTML += `<div class="mensagem verena" style="color:red">Erro de conexão. Tente novamente.</div>`;
+            console.error(erro);
+        });
+    }
+
+    // Permitir enviar com Enter
+    userInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') enviarMensagem();
+    });
+</script>
+
 </body>
 </html>
