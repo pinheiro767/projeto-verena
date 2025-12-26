@@ -1,86 +1,58 @@
 import os
-import requests
 from flask import Flask, render_template, request, jsonify
-from dotenv import load_dotenv
-import datetime
-
-load_dotenv()
-API_KEY = os.getenv("MINHA_KEY")
+import google.generativeai as genai
+from PIL import Image
 
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 
+
+# --- CONFIGURAÇÃO DA CHAVE ---
+# Tenta pegar a chave segura do Windows
+API_KEY = os.environ.get("GEMINI_API_KEY")
+genai.configure(api_key=API_KEY)
+
+# --- PERSONALIDADE DA VERENA (SEGURANÇA) ---
+instrucoes = """
+Você é a VERENA, assistente virtual de saúde geriátrica.
+1. Seja empática e nunca use termos infantilizados (ex: 'vózinha').
+2. Se houver risco de queda na conversa ou imagem, ALERTE.
+3. Não dê diagnósticos médicos, apenas orientações de suporte e literacia.
+4. Explique termos técnicos de forma simples para cuidadores leigos.
+"""
+
+# --- CÉREBRO 2.0 (COM VISÃO E SEGURANÇA) ---
+# Aqui ligamos a Visão (Vision) e o Prompt de Sistema
+model = genai.GenerativeModel(
+    model_name='gemini-2.0-flash-exp',
+    system_instruction=instrucoes
+)
 
 @app.route('/')
-def home():
+def index():
     return render_template('index.html')
 
-@app.route('/processar', methods=['POST'])
-def processar():
-    dados = request.json
-    msg_texto = dados.get('msg', '')
-    img_b64 = dados.get('imagem')
-    img_tipo = dados.get('tipo')
-    
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
-    headers = {"Content-Type": "application/json"}
-    
-    ano_atual = datetime.datetime.now().year
-    
-    # --- CÉREBRO DA VERENA (REFINADO PARA CITAÇÕES REAIS) ---
-    prompt_sistema = f"""
-    ATUE COMO: VERENA (Especialista em Neurociência, Leitura de Exames, Direito e Saúde).
-    
-    REGRAS DE CITAÇÃO CIENTÍFICA (RIGOROSO):
-    1. Use dados recentes ({ano_atual-5} a {ano_atual}).
-    2. SOBRE O DOI: Se você tiver o link/código DOI real, coloque-o.
-    3. PROIBIDO: Se você NÃO tiver o DOI exato, NÃO invente "XXXXXX" nem códigos falsos. Nesse caso, cite apenas: "Autor, Título da Revista (Ano)". Seja honesta.
-    
-    REGRAS DE VISÃO (IMAGENS):
-    - EXAMES: Traduza termos técnicos para linguagem simples.
-    - BULAS: Resuma indicações e riscos.
-    - ALERTA: Nunca dê diagnóstico fechado. Diga "sugere", "indica", "consulte o médico".
-    
-    POSTURA:
-    - Acolha a emoção (Psicologia).
-    - Explique a biologia (Neurociência).
-    - Defenda direitos (Leis/SUS).
-    
-    PERGUNTA: '{msg_texto}'
-    """
-    
-    partes_conteudo = []
-    partes_conteudo.append({"text": prompt_sistema})
-    
-    if img_b64 and img_tipo:
-        partes_conteudo.append({
-            "inline_data": {
-                "mime_type": img_tipo,
-                "data": img_b64
-            }
-        })
-
-    payload = {
-        "contents": [{
-            "parts": partes_conteudo
-        }]
-    }
-
+@app.route('/chat', methods=['POST'])
+def chat():
     try:
-        response = requests.post(url, headers=headers, json=payload)
+        texto_usuario = request.form.get('message')
+        imagem_enviada = request.files.get('image')
+
+        # CASO 1: Tem imagem? (Visão Computacional)
+        if imagem_enviada:
+            img = Image.open(imagem_enviada)
+            prompt = [texto_usuario or "Analise esta imagem clinicamente para um cuidador.", img]
+            response = model.generate_content(prompt)
         
-        if response.status_code == 200:
-            resultado = response.json()
-            try:
-                texto_ia = resultado['candidates'][0]['content']['parts'][0]['text']
-            except:
-                texto_ia = "Não consegui interpretar a resposta. Tente reformular."
+        # CASO 2: Só texto?
+        elif texto_usuario:
+            response = model.generate_content(texto_usuario)
             
-            return jsonify({"resposta": texto_ia.replace('\n', '<br>')})
         else:
-            return jsonify({"resposta": f"Erro Google: {response.text}"})
-            
+            return jsonify({'response': "Não entendi. Mande texto ou imagem."})
+
+        return jsonify({'response': response.text})
+
     except Exception as e:
-        return jsonify({"resposta": f"Erro interno: {str(e)}"})
+        return jsonify({'response': f"Erro: {str(e)}"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
