@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Verena — IA Geriátrica</title>
+<title>Verena — IA em Saúde</title>
 
 <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
 <meta name="theme-color" content="#2c3e50">
@@ -67,6 +67,7 @@ body{
 .input-row{
   display:flex;
   gap:8px;
+  align-items:center;
 }
 input[type=text]{
   flex:1;
@@ -107,12 +108,13 @@ button{
 /* rodape */
 #footer{
   max-width:650px;
-  margin:10px auto;
+  margin:10px auto 20px;
   font-size:14px;
   color:#444;
   background:#f9f9f9;
   padding:10px;
   border-radius:10px;
+  border:1px solid #ddd;
 }
 </style>
 </head>
@@ -132,16 +134,32 @@ button{
   <div id="chat">
     <div class="bot">
       Olá! Sou a Verena 💙<br>
-      Você pode digitar, falar no microfone 🎤 ou enviar imagens.
+      Você pode digitar, falar no microfone 🎤 ou enviar imagens 📷.
     </div>
   </div>
 
   <div id="controls">
 
     <div class="input-row">
+
+      <!-- MICROFONE -->
       <button class="btn" onclick="startMic()">🎤</button>
+
+      <!-- ANEXAR IMAGEM -->
+      <label class="btn">
+        📷
+        <input type="file" id="img-in" accept="image/*" style="display:none" onchange="enviarImagem()">
+      </label>
+
+      <!-- CAMPO DE TEXTO -->
       <input type="text" id="msg" placeholder="Digite sua mensagem...">
+
+      <!-- ENVIAR -->
       <button class="btn-send" onclick="send()">Enviar</button>
+
+      <!-- ATIVAR SOM -->
+      <button class="btn" onclick="toggleVoice()">🔊</button>
+
     </div>
 
   </div>
@@ -157,7 +175,6 @@ button{
 
 <script>
 /* ------------ MICROFONE (fala -> texto) ---------------- */
-
 function startMic(){
   const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
   rec.lang = "pt-BR";
@@ -165,8 +182,7 @@ function startMic(){
   rec.start();
 }
 
-/* ------------ ENVIAR MENSAGEM ---------------- */
-
+/* ------------ ENVIAR TEXTO ---------------- */
 async function send(){
   const msg = document.getElementById("msg");
   const chat = document.getElementById("chat");
@@ -187,9 +203,43 @@ async function send(){
   chat.scrollTop = chat.scrollHeight;
 }
 
-/* ------------ VERENA FALA (texto -> voz) ---------------- */
+/* ------------ ENVIAR IMAGEM ---------------- */
+async function enviarImagem(){
+  const file = document.getElementById("img-in").files[0];
+  if(!file) return;
 
+  const reader = new FileReader();
+  reader.onloadend = async () => {
+
+    chat.innerHTML += `<div class="user">📎 Imagem enviada</div>`;
+
+    const resposta = await fetch("/processar",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        imagem: reader.result,
+        tipo: file.type,
+        msg:"Analise a imagem"
+      })
+    }).then(r=>r.json());
+
+    chat.innerHTML += `<div class="bot">${resposta.resposta}</div>`;
+    speak(resposta.resposta);
+  };
+
+  reader.readAsDataURL(file);
+}
+
+/* ------------ VOZ ON/OFF ---------------- */
+let voiceOn = true;
+function toggleVoice(){
+  voiceOn = !voiceOn;
+  alert(voiceOn ? "Voz ativada" : "Voz desativada");
+}
+
+/* ------------ VERENA FALA ---------------- */
 function speak(texto){
+  if(!voiceOn) return;
   const u = new SpeechSynthesisUtterance(texto);
   u.lang = "pt-BR";
   u.rate = 1;
@@ -197,7 +247,6 @@ function speak(texto){
 }
 
 /* ------------ BOTÃO INSTALAR APP ---------------- */
-
 let deferredPrompt;
 const installBtn = document.getElementById("installBtn");
 
@@ -215,7 +264,6 @@ installBtn.addEventListener("click", async()=>{
 });
 
 /* ------------ SERVICE WORKER ---------------- */
-
 if("serviceWorker" in navigator){
   navigator.serviceWorker.register("/service-worker.js");
 }
