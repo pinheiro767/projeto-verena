@@ -6,132 +6,38 @@
     <meta name="theme-color" content="#005b96">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <title>Verena - Assistente Falante</title>
-    
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --azul-saude: #005b96;
-            --fundo: #f4f7f6;
-            --balao-user: #005b96;
-            --balao-ia: #ffffff;
-            --vermelho-gravando: #e74c3c;
-            --verde-som: #4cd137;
-        }
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--fundo);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            height: 100vh;
-        }
-
-        .chat-container {
-            background-color: #fff;
-            width: 100%;
-            max-width: 850px;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        }
-
-        .header {
-            background-color: var(--azul-saude);
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
+        :root { --azul-saude: #005b96; --fundo: #f4f7f6; --balao-user: #005b96; --balao-ia: #ffffff; --vermelho-gravando: #e74c3c; --verde-som: #4cd137; }
+        body { font-family: 'Roboto', sans-serif; background-color: var(--fundo); margin: 0; display: flex; justify-content: center; height: 100vh; }
+        .chat-container { background-color: #fff; width: 100%; max-width: 850px; height: 100vh; display: flex; flex-direction: column; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+        .header { background-color: var(--azul-saude); color: white; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .perfil { display: flex; align-items: center; gap: 15px; }
-
-        .header img {
-            width: 55px; height: 55px;
-            border-radius: 50%; border: 2px solid white;
-            object-fit: cover; object-position: top center;
-        }
-
+        .header img { width: 55px; height: 55px; border-radius: 50%; border: 2px solid white; object-fit: cover; object-position: top center; }
         .header h1 { margin: 0; font-size: 1.3rem; }
         .header p { margin: 0; font-size: 0.85rem; opacity: 0.9; }
-
         .controles-header { display: flex; gap: 10px; align-items: center; }
-
-        .btn-header {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.4);
-            color: white; padding: 10px;
-            border-radius: 50%; cursor: pointer;
-            transition: background 0.3s;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem;
-            width: 40px; height: 40px;
-        }
+        .btn-header { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 10px; border-radius: 50%; cursor: pointer; transition: background 0.3s; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; width: 40px; height: 40px; }
         .btn-header:hover { background: rgba(255,255,255,0.4); }
-        
-        .som-ativo { 
-            background-color: var(--verde-som) !important; 
-            border-color: var(--verde-som) !important; 
-            box-shadow: 0 0 10px rgba(76, 209, 55, 0.5);
-        }
-
-        .chat-box {
-            flex: 1; padding: 20px; overflow-y: auto;
-            display: flex; flex-direction: column; gap: 15px;
-            background-color: #f9f9f9;
-        }
-
-        .mensagem {
-            max-width: 80%; padding: 15px;
-            border-radius: 12px; line-height: 1.5;
-            position: relative; font-size: 0.95rem;
-        }
-
+        .som-ativo { background-color: var(--verde-som) !important; border-color: var(--verde-som) !important; box-shadow: 0 0 10px rgba(76, 209, 55, 0.5); }
+        .chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background-color: #f9f9f9; }
+        .mensagem { max-width: 80%; padding: 15px; border-radius: 12px; line-height: 1.5; position: relative; font-size: 0.95rem; }
         .verena { align-self: flex-start; background-color: var(--balao-ia); border: 1px solid #ddd; border-bottom-left-radius: 2px; }
         .usuario { align-self: flex-end; background-color: var(--balao-user); color: white; border-bottom-right-radius: 2px; }
-
         .img-preview-chat { max-width: 200px; border-radius: 8px; margin-bottom: 8px; border: 2px solid rgba(255,255,255,0.5); }
-
-        .input-area {
-            padding: 15px; background: white; border-top: 1px solid #ddd;
-            display: flex; align-items: center; gap: 8px;
-        }
-
-        .btn-icon {
-            cursor: pointer; padding: 10px; border-radius: 50%;
-            color: var(--azul-saude); border: none; background: transparent;
-        }
+        .input-area { padding: 15px; background: white; border-top: 1px solid #ddd; display: flex; align-items: center; gap: 8px; }
+        .btn-icon { cursor: pointer; padding: 10px; border-radius: 50%; color: var(--azul-saude); border: none; background: transparent; }
         .btn-icon:hover { background-color: #eef; }
         .btn-icon svg { width: 24px; height: 24px; }
-        
-        .gravando {
-            background-color: var(--vermelho-gravando) !important;
-            color: white !important;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
-        }
-
+        .gravando { background-color: var(--vermelho-gravando) !important; color: white !important; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); } 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); } }
         #file-input { display: none; } 
         .file-alert { display: none; font-size: 0.75rem; background-color: #e1f5fe; color: var(--azul-saude); padding: 5px 10px; border-radius: 15px; }
-
-        input[type="text"] {
-            flex: 1; padding: 12px 15px;
-            border: 1px solid #ccc; border-radius: 25px; outline: none; font-size: 1rem;
-        }
-        
-        button.btn-enviar {
-            background-color: var(--azul-saude); color: white; border: none;
-            padding: 12px 20px; border-radius: 25px; cursor: pointer; font-weight: bold;
-        }
-
+        input[type="text"] { flex: 1; padding: 12px 15px; border: 1px solid #ccc; border-radius: 25px; outline: none; font-size: 1rem; }
+        button.btn-enviar { background-color: var(--azul-saude); color: white; border: none; padding: 12px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; }
         .loading { text-align: center; font-style: italic; color: #777; font-size: 0.8rem; display: none; padding: 5px; }
+        /* NOVO ESTILO DO AVISO */
+        .disclaimer { background-color: #fff3cd; color: #856404; padding: 8px; font-size: 0.7rem; text-align: center; border-top: 1px solid #ffeeba; line-height: 1.2; }
     </style>
 </head>
 <body>
@@ -145,7 +51,6 @@
                 <p>Especialista em Saúde</p>
             </div>
         </div>
-        
         <div class="controles-header">
             <button id="btn-som" class="btn-header" onclick="alternarSom()" title="Ligar Voz">🔇</button>
             <button class="btn-header" onclick="novaConversa()" title="Limpar Conversa">🧹</button>
@@ -161,6 +66,11 @@
     </div>
     
     <div class="loading" id="loading">Verena está pensando...</div>
+
+    <div class="disclaimer">
+        ⚠️ <strong>Aviso:</strong> Sou uma Inteligência Artificial. Posso cometer erros. 
+        Minhas respostas são educativas e <strong>não substituem consulta médica ou jurídica.</strong>
+    </div>
 
     <div class="input-area">
         <label for="file-input" class="btn-icon" title="Anexar Imagem">
@@ -183,27 +93,17 @@
     let imagemBase64 = null;
     let mimeType = null;
     let somAtivo = false;
-    // VARIÁVEL GLOBAL PARA SEGURAR A MEMÓRIA DA VOZ
     let vozAtual = null;
 
-    // --- FUNÇÃO DE FALA CORRIGIDA (GLOBAL) ---
     function falarTexto(textoHTML) {
         if (!somAtivo) return;
-
-        // Cancela qualquer fala anterior para não encavalar
         window.speechSynthesis.cancel();
-
-        // Limpa o texto
         let div = document.createElement("div");
         div.innerHTML = textoHTML;
         let textoLimpo = div.textContent || div.innerText || "";
-
-        // CRIA A VOZ NA VARIÁVEL GLOBAL (Isso impede que o celular apague)
         vozAtual = new SpeechSynthesisUtterance(textoLimpo);
         vozAtual.lang = "pt-BR";
         vozAtual.rate = 1.1; 
-        
-        // Manda falar
         window.speechSynthesis.speak(vozAtual);
     }
 
@@ -221,7 +121,6 @@
         }
     }
 
-    // --- MICROFONE ---
     const btnMic = document.getElementById('btn-mic');
     const userInput = document.getElementById('user-input');
     let recognition = null;
@@ -258,7 +157,6 @@
         else recognition.start();
     }
 
-    // --- SISTEMA DE CHAT ---
     const chatBox = document.getElementById('chat-box');
     const loading = document.getElementById('loading');
     const fileInput = document.getElementById('file-input');
