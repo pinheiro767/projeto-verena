@@ -1,58 +1,58 @@
+import os
 from flask import Flask, render_template, request, jsonify
 import google.generativeai as genai
-import os
+from PIL import Image
 
 app = Flask(__name__)
 
+# --- CONFIGURAÇÃO DA CHAVE ---
+# Tenta pegar a chave segura do Windows
 API_KEY = os.environ.get("GEMINI_API_KEY")
-if not API_KEY:
-    raise RuntimeError("GEMINI_API_KEY não configurada")
 genai.configure(api_key=API_KEY)
 
+# --- PERSONALIDADE DA VERENA (SEGURANÇA) ---
+instrucoes = """
+Você é a VERENA, assistente virtual de saúde geriátrica.
+1. Seja empática e nunca use termos infantilizados (ex: 'vózinha').
+2. Se houver risco de queda na conversa ou imagem, ALERTE.
+3. Não dê diagnósticos médicos, apenas orientações de suporte e literacia.
+4. Explique termos técnicos de forma simples para cuidadores leigos.
+"""
+
+# --- CÉREBRO 2.0 (COM VISÃO E SEGURANÇA) ---
+# Aqui ligamos a Visão (Vision) e o Prompt de Sistema
 model = genai.GenerativeModel(
-    model_name="models/gemini-1.5-flash",
-    system_instruction=(
-        "Sou a Verena, especialista em anatomia, neurociência e direito. "
-        "Se o usuário usar termos infantilizados como 'vozinha', "
-        "devo educar gentilmente sobre a importância de chamar de Senhora ou pelo nome, "
-        "preservando a autonomia e dignidade da pessoa idosa."
-    )
+    model_name='gemini-2.0-flash-exp',
+    system_instruction=instrucoes
 )
 
-@app.route("/")
+@app.route('/')
 def index():
-    return render_template("index.html")
+    return render_template('index.html')
 
-
-@app.route("/chat", methods=["POST"])
+@app.route('/chat', methods=['POST'])
 def chat():
     try:
-        user_message = request.form.get("message", "").strip()
-        image_file = request.files.get("image")
+        texto_usuario = request.form.get('message')
+        imagem_enviada = request.files.get('image')
 
-        parts = []
+        # CASO 1: Tem imagem? (Visão Computacional)
+        if imagem_enviada:
+            img = Image.open(imagem_enviada)
+            prompt = [texto_usuario or "Analise esta imagem clinicamente para um cuidador.", img]
+            response = model.generate_content(prompt)
+        
+        # CASO 2: Só texto?
+        elif texto_usuario:
+            response = model.generate_content(texto_usuario)
+            
+        else:
+            return jsonify({'response': "Não entendi. Mande texto ou imagem."})
 
-        if user_message:
-            parts.append(user_message)
-
-        if image_file:
-            parts.append({
-                "mime_type": image_file.mimetype,
-                "data": image_file.read()
-            })
-
-        if not parts:
-            return jsonify({"response": "Nenhuma mensagem recebida."}), 400
-
-        response = model.generate_content(parts)
-
-        return jsonify({"response": response.text})
+        return jsonify({'response': response.text})
 
     except Exception as e:
-        print("Erro:", e, flush=True)
-        return jsonify({"response": f"Erro técnico: {str(e)}"}), 500
+        return jsonify({'response': f"Erro: {str(e)}"}), 500
 
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+if __name__ == '__main__':
+    app.run(debug=True)
