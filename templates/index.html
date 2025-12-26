@@ -58,7 +58,6 @@
         .header h1 { margin: 0; font-size: 1.3rem; }
         .header p { margin: 0; font-size: 0.85rem; opacity: 0.9; }
 
-        /* Controles do Topo */
         .controles-header { display: flex; gap: 10px; align-items: center; }
 
         .btn-header {
@@ -73,7 +72,6 @@
         }
         .btn-header:hover { background: rgba(255,255,255,0.4); }
         
-        /* Estilo quando o som está LIGADO */
         .som-ativo { 
             background-color: var(--verde-som) !important; 
             border-color: var(--verde-som) !important; 
@@ -149,20 +147,15 @@
         </div>
         
         <div class="controles-header">
-            <button id="btn-som" class="btn-header" onclick="alternarSom()" title="Ligar Voz">
-                🔇
-            </button>
-            
-            <button class="btn-header" onclick="novaConversa()" title="Limpar Conversa">
-                🧹
-            </button>
+            <button id="btn-som" class="btn-header" onclick="alternarSom()" title="Ligar Voz">🔇</button>
+            <button class="btn-header" onclick="novaConversa()" title="Limpar Conversa">🧹</button>
         </div>
     </div>
 
     <div class="chat-box" id="chat-box">
         <div class="mensagem verena">
             Olá! Sou a Verena. 🧠<br><br>
-            <strong>Toque no botão de som (🔇) lá em cima</strong> se quiser me ouvir falando!<br>
+            Se quiser que eu fale a resposta, clique no botão de som (🔇) para ativar!<br>
             Estou pronta para ler exames, bulas ou tirar dúvidas.
         </div>
     </div>
@@ -190,28 +183,36 @@
     let imagemBase64 = null;
     let mimeType = null;
     let somAtivo = false;
+    // VARIÁVEL GLOBAL PARA SEGURAR A MEMÓRIA DA VOZ
+    let vozAtual = null;
 
-    // --- FUNÇÃO DE FALA (TTS) ---
+    // --- FUNÇÃO DE FALA CORRIGIDA (GLOBAL) ---
     function falarTexto(textoHTML) {
         if (!somAtivo) return;
 
-        // Limpa o texto para a voz não ler códigos
+        // Cancela qualquer fala anterior para não encavalar
+        window.speechSynthesis.cancel();
+
+        // Limpa o texto
         let div = document.createElement("div");
         div.innerHTML = textoHTML;
         let textoLimpo = div.textContent || div.innerText || "";
 
-        let fala = new SpeechSynthesisUtterance(textoLimpo);
-        fala.lang = "pt-BR";
-        fala.rate = 1.1; 
-        window.speechSynthesis.speak(fala);
+        // CRIA A VOZ NA VARIÁVEL GLOBAL (Isso impede que o celular apague)
+        vozAtual = new SpeechSynthesisUtterance(textoLimpo);
+        vozAtual.lang = "pt-BR";
+        vozAtual.rate = 1.1; 
+        
+        // Manda falar
+        window.speechSynthesis.speak(vozAtual);
     }
 
     function alternarSom() {
         somAtivo = !somAtivo;
         const btn = document.getElementById('btn-som');
         if (somAtivo) {
-            btn.innerText = "🔊"; // Muda ícone para som ligado
-            btn.classList.add("som-ativo"); // Fica verde
+            btn.innerText = "🔊";
+            btn.classList.add("som-ativo");
             falarTexto("Voz ativada.");
         } else {
             btn.innerText = "🔇";
@@ -313,7 +314,7 @@
             loading.style.display = 'none';
             chatBox.innerHTML += `<div class="mensagem verena">${data.resposta}</div>`;
             chatBox.scrollTop = chatBox.scrollHeight;
-            falarTexto(data.resposta); // Verena fala aqui!
+            falarTexto(data.resposta); 
             limparImagem();
         })
         .catch(err => {
