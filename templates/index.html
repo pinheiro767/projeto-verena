@@ -1,228 +1,224 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Verena — IA Geriátrica</title>
+<title>Verena — IA Geriátrica</title>
 
-    <!-- Manifest do PWA -->
-    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-    <meta name="theme-color" content="#2c3e50">
+<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+<meta name="theme-color" content="#2c3e50">
 
-    <!-- Estilo com foco em acessibilidade -->
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f0f2f5;
-            margin: 0;
-            padding: 0;
-            font-size: 18px;
-            line-height: 1.6;
-        }
-
-        #chat-container {
-            width: 100%;
-            max-width: 650px;
-            margin: 20px auto;
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        #header {
-            background: #2c3e50;
-            color: white;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .avatar {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #27ae60;
-        }
-
-        #chat {
-            height: 450px;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            font-size: 18px;
-        }
-
-        .bot {
-            background: #e8f5e9;
-            padding: 12px;
-            border-radius: 10px;
-            align-self: flex-start;
-            max-width: 90%;
-        }
-
-        .user {
-            background: #1e73be;
-            color: white;
-            padding: 12px;
-            border-radius: 10px;
-            align-self: flex-end;
-            max-width: 90%;
-        }
-
-        #controls {
-            padding: 15px;
-            border-top: 1px solid #eee;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .input-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        input[type="text"] {
-            flex: 1;
-            padding: 12px;
-            border-radius: 20px;
-            border: 1px solid #ddd;
-            outline: none;
-            font-size: 18px;
-        }
-
-        .btn-send {
-            border: none;
-            background: #27ae60;
-            color: white;
-            border-radius: 20px;
-            padding: 10px 20px;
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        #preview {
-            max-width: 90px;
-            display: none;
-            border-radius: 10px;
-        }
-
-        /* Botão instalar app */
-        #installBtn {
-            display:none;
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background:#2c3e50;
-            color:white;
-            padding:12px 18px;
-            border:none;
-            border-radius:25px;
-            font-size:16px;
-        }
-    </style>
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#f0f2f5;
+  margin:0;
+  font-size:18px;
+}
+#chat-container{
+  max-width:650px;
+  margin:20px auto;
+  background:#fff;
+  border-radius:15px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.1);
+  overflow:hidden;
+}
+#header{
+  background:#2c3e50;
+  color:#fff;
+  padding:15px;
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+.avatar{
+  width:55px;height:55px;
+  border-radius:50%;
+  border:2px solid #27ae60;
+  object-fit:cover;
+}
+#chat{
+  height:450px;
+  overflow-y:auto;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.bot{
+  background:#e8f5e9;
+  padding:12px;
+  border-radius:12px;
+  max-width:90%;
+}
+.user{
+  background:#1e73be;
+  color:#fff;
+  padding:12px;
+  border-radius:12px;
+  margin-left:auto;
+  max-width:90%;
+}
+#controls{
+  padding:15px;
+  border-top:1px solid #eee;
+}
+.input-row{
+  display:flex;
+  gap:8px;
+}
+input[type=text]{
+  flex:1;
+  padding:12px;
+  border-radius:20px;
+  border:1px solid #ccc;
+  font-size:18px;
+}
+button{
+  cursor:pointer;
+}
+.btn{
+  padding:10px;
+  border-radius:50%;
+  border:none;
+  font-size:20px;
+}
+.btn-send{
+  background:#27ae60;
+  color:#fff;
+  border-radius:20px;
+  padding:10px 20px;
+  font-size:16px;
+  border:none;
+}
+#installBtn{
+  display:none;
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:#2c3e50;
+  color:#fff;
+  border:none;
+  padding:12px 18px;
+  border-radius:25px;
+  font-size:16px;
+}
+/* rodape */
+#footer{
+  max-width:650px;
+  margin:10px auto;
+  font-size:14px;
+  color:#444;
+  background:#f9f9f9;
+  padding:10px;
+  border-radius:10px;
+}
+</style>
 </head>
 
 <body>
 
 <div id="chat-container">
-    <div id="header">
-        <img src="/static/verena-avatar.png" class="avatar">
-        <div><strong>Verena — IA em Saúde</strong><br><small>Educação em Geriatria e Neurociências</small></div>
+
+  <div id="header">
+    <img src="/static/verena-avatar.png" class="avatar">
+    <div>
+      <strong>Verena — IA em Saúde</strong><br>
+      <small>Educação em Geriatria e Neurociências</small>
+    </div>
+  </div>
+
+  <div id="chat">
+    <div class="bot">
+      Olá! Sou a Verena 💙<br>
+      Você pode digitar, falar no microfone 🎤 ou enviar imagens.
+    </div>
+  </div>
+
+  <div id="controls">
+
+    <div class="input-row">
+      <button class="btn" onclick="startMic()">🎤</button>
+      <input type="text" id="msg" placeholder="Digite sua mensagem...">
+      <button class="btn-send" onclick="send()">Enviar</button>
     </div>
 
-    <div id="chat">
-        <div class="bot">
-            Olá! Sou a Verena 💙<br>
-            Posso ajudar com saúde do idoso, neurociência e direitos do paciente.<br>
-            Sempre em linguagem simples e acolhedora.
-        </div>
-    </div>
-
-    <div id="controls">
-        <img id="preview">
-        <div class="input-row">
-            <input type="file" id="img-in" accept="image/*" onchange="showPre(this)">
-            <input type="text" id="msg" placeholder="Digite sua mensagem...">
-            <button class="btn-send" onclick="send()">Enviar</button>
-        </div>
-    </div>
+  </div>
 </div>
 
-<!-- Botão instalar -->
+<!-- AVISOS LEGAIS -->
+<div id="footer">
+⚠️ <strong>Aviso:</strong> Sou uma IA educacional. Minhas respostas não substituem consulta médica ou jurídica. Em emergências, procure um hospital.<br>
+🧪 <strong>Projeto Open Source</strong> em fase de validação acadêmica. Uso livre para testes e desenvolvimento.
+</div>
+
 <button id="installBtn">Instalar o Aplicativo</button>
 
 <script>
-    function showPre(input) {
-        const p = document.getElementById('preview');
-        if (input.files && input.files[0]) {
-            const r = new FileReader();
-            r.onload = e => { p.src = e.target.result; p.style.display = 'block'; };
-            r.readAsDataURL(input.files[0]);
-        }
-    }
+/* ------------ MICROFONE (fala -> texto) ---------------- */
 
-    async function send() {
-        const msgIn = document.getElementById('msg');
-        const fileIn = document.getElementById('img-in');
-        const chat = document.getElementById('chat');
+function startMic(){
+  const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  rec.lang = "pt-BR";
+  rec.onresult = e => document.getElementById("msg").value = e.results[0][0].transcript;
+  rec.start();
+}
 
-        if(!msgIn.value && !fileIn.files[0]) return;
+/* ------------ ENVIAR MENSAGEM ---------------- */
 
-        chat.innerHTML += `<div class="user">${msgIn.value || "Imagem enviada"}</div>`;
+async function send(){
+  const msg = document.getElementById("msg");
+  const chat = document.getElementById("chat");
+  if(!msg.value) return;
 
-        const payload = {
-            msg: msgIn.value
-        };
+  chat.innerHTML += `<div class="user">${msg.value}</div>`;
 
-        msgIn.value = '';
+  const resposta = await fetch("/processar",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({msg:msg.value})
+  }).then(r=>r.json());
 
-        try {
-            const res = await fetch('/processar', {
-                method: 'POST',
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(payload)
-            });
+  chat.innerHTML += `<div class="bot">${resposta.resposta}</div>`;
+  speak(resposta.resposta);
 
-            const d = await res.json();
-            chat.innerHTML += `<div class="bot">${d.resposta}</div>`;
-        } catch(e) {
-            chat.innerHTML += `<div class="bot">Erro de conexão.</div>`;
-        }
+  msg.value="";
+  chat.scrollTop = chat.scrollHeight;
+}
 
-        chat.scrollTop = chat.scrollHeight;
-    }
+/* ------------ VERENA FALA (texto -> voz) ---------------- */
 
-    /* --------- BOTÃO INSTALAR APP ----------*/
+function speak(texto){
+  const u = new SpeechSynthesisUtterance(texto);
+  u.lang = "pt-BR";
+  u.rate = 1;
+  speechSynthesis.speak(u);
+}
 
-    let deferredPrompt;
-    const installBtn = document.getElementById("installBtn");
+/* ------------ BOTÃO INSTALAR APP ---------------- */
 
-    window.addEventListener("beforeinstallprompt", (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        installBtn.style.display = "block";
-    });
+let deferredPrompt;
+const installBtn = document.getElementById("installBtn");
 
-    installBtn.addEventListener("click", async () => {
-        installBtn.style.display = "none";
-        deferredPrompt.prompt();
-        await deferredPrompt.userChoice;
-        deferredPrompt = null;
-    });
+window.addEventListener("beforeinstallprompt",(e)=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  installBtn.style.display="block";
+});
 
-    /* --------- SERVICE WORKER ----------*/
+installBtn.addEventListener("click", async()=>{
+  installBtn.style.display="none";
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt=null;
+});
 
-    if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("/service-worker.js");
-    }
+/* ------------ SERVICE WORKER ---------------- */
+
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("/service-worker.js");
+}
 </script>
 
 </body>
