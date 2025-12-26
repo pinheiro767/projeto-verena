@@ -3,232 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#005b96">
+
+    <title>Verena — IA Geriátrica</title>
+
+    <!-- Manifest do PWA -->
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-    <title>Verena - Assistente Falante</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#2c3e50">
+
+    <!-- Estilo com foco em acessibilidade -->
     <style>
-        :root { --azul-saude: #005b96; --fundo: #f4f7f6; --balao-user: #005b96; --balao-ia: #ffffff; --vermelho-gravando: #e74c3c; --verde-som: #4cd137; }
-        body { font-family: 'Roboto', sans-serif; background-color: var(--fundo); margin: 0; display: flex; justify-content: center; height: 100vh; }
-        .chat-container { background-color: #fff; width: 100%; max-width: 850px; height: 100vh; display: flex; flex-direction: column; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
-        .header { background-color: var(--azul-saude); color: white; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .perfil { display: flex; align-items: center; gap: 15px; }
-        .header img { width: 55px; height: 55px; border-radius: 50%; border: 2px solid white; object-fit: cover; object-position: top center; }
-        .header h1 { margin: 0; font-size: 1.3rem; }
-        .header p { margin: 0; font-size: 0.85rem; opacity: 0.9; }
-        .controles-header { display: flex; gap: 10px; align-items: center; }
-        .btn-header { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 10px; border-radius: 50%; cursor: pointer; transition: background 0.3s; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; width: 40px; height: 40px; }
-        .btn-header:hover { background: rgba(255,255,255,0.4); }
-        .som-ativo { background-color: var(--verde-som) !important; border-color: var(--verde-som) !important; box-shadow: 0 0 10px rgba(76, 209, 55, 0.5); }
-        .chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background-color: #f9f9f9; }
-        .mensagem { max-width: 80%; padding: 15px; border-radius: 12px; line-height: 1.5; position: relative; font-size: 0.95rem; }
-        .verena { align-self: flex-start; background-color: var(--balao-ia); border: 1px solid #ddd; border-bottom-left-radius: 2px; }
-        .usuario { align-self: flex-end; background-color: var(--balao-user); color: white; border-bottom-right-radius: 2px; }
-        .img-preview-chat { max-width: 200px; border-radius: 8px; margin-bottom: 8px; border: 2px solid rgba(255,255,255,0.5); }
-        .input-area { padding: 15px; background: white; border-top: 1px solid #ddd; display: flex; align-items: center; gap: 8px; }
-        .btn-icon { cursor: pointer; padding: 10px; border-radius: 50%; color: var(--azul-saude); border: none; background: transparent; }
-        .btn-icon:hover { background-color: #eef; }
-        .btn-icon svg { width: 24px; height: 24px; }
-        .gravando { background-color: var(--vermelho-gravando) !important; color: white !important; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); } 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); } }
-        #file-input { display: none; } 
-        .file-alert { display: none; font-size: 0.75rem; background-color: #e1f5fe; color: var(--azul-saude); padding: 5px 10px; border-radius: 15px; }
-        input[type="text"] { flex: 1; padding: 12px 15px; border: 1px solid #ccc; border-radius: 25px; outline: none; font-size: 1rem; }
-        button.btn-enviar { background-color: var(--azul-saude); color: white; border: none; padding: 12px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; }
-        .loading { text-align: center; font-style: italic; color: #777; font-size: 0.8rem; display: none; padding: 5px; }
-        
-        /* AVISOS LEGAIS */
-        .disclaimer-container { display: flex; flex-direction: column; gap: 0; }
-        .disclaimer-box { background-color: #fff3cd; color: #856404; padding: 8px; font-size: 0.75rem; text-align: center; border-top: 1px solid #ffeeba; line-height: 1.2; }
-        .beta-box { background-color: #e2e3e5; color: #383d41; padding: 5px; font-size: 0.65rem; text-align: center; border-top: 1px solid #d6d8db; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        #chat-container {
+            width: 100%;
+            max-width: 650px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        #header {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #27ae60;
+        }
+
+        #chat {
+            height: 450px;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 18px;
+        }
+
+        .bot {
+            background: #e8f5e9;
+            padding: 12px;
+            border-radius: 10px;
+            align-self: flex-start;
+            max-width: 90%;
+        }
+
+        .user {
+            background: #1e73be;
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            align-self: flex-end;
+            max-width: 90%;
+        }
+
+        #controls {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            outline: none;
+            font-size: 18px;
+        }
+
+        .btn-send {
+            border: none;
+            background: #27ae60;
+            color: white;
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        #preview {
+            max-width: 90px;
+            display: none;
+            border-radius: 10px;
+        }
+
+        /* Botão instalar app */
+        #installBtn {
+            display:none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background:#2c3e50;
+            color:white;
+            padding:12px 18px;
+            border:none;
+            border-radius:25px;
+            font-size:16px;
+        }
     </style>
 </head>
+
 <body>
 
-<div class="chat-container">
-    <div class="header">
-        <div class="perfil">
-            <img src="{{ url_for('static', filename='avatar.png') }}" alt="Verena">
-            <div>
-                <h1>Verena</h1>
-                <p>Especialista em Saúde</p>
-            </div>
-        </div>
-        <div class="controles-header">
-            <button id="btn-som" class="btn-header" onclick="alternarSom()" title="Ligar Voz">🔇</button>
-            <button class="btn-header" onclick="novaConversa()" title="Limpar Conversa">🧹</button>
+<div id="chat-container">
+    <div id="header">
+        <img src="/static/verena-avatar.png" class="avatar">
+        <div><strong>Verena — IA em Saúde</strong><br><small>Educação em Geriatria e Neurociências</small></div>
+    </div>
+
+    <div id="chat">
+        <div class="bot">
+            Olá! Sou a Verena 💙<br>
+            Posso ajudar com saúde do idoso, neurociência e direitos do paciente.<br>
+            Sempre em linguagem simples e acolhedora.
         </div>
     </div>
 
-    <div class="chat-box" id="chat-box">
-        <div class="mensagem verena">
-            Olá! Sou a Verena. 🧠<br><br>
-            Se quiser que eu fale a resposta, clique no botão de som (🔇) para ativar!<br>
-            Estou pronta para ler exames, bulas ou tirar dúvidas.
+    <div id="controls">
+        <img id="preview">
+        <div class="input-row">
+            <input type="file" id="img-in" accept="image/*" onchange="showPre(this)">
+            <input type="text" id="msg" placeholder="Digite sua mensagem...">
+            <button class="btn-send" onclick="send()">Enviar</button>
         </div>
-    </div>
-    
-    <div class="loading" id="loading">Verena está pensando...</div>
-
-    <div class="disclaimer-container">
-        <div class="disclaimer-box">
-            ⚠️ <strong>Aviso:</strong> Sou uma IA educacional. Minhas respostas <strong>não substituem consulta médica ou jurídica.</strong> Em emergências, procure um hospital.
-        </div>
-        <div class="beta-box">
-            🧪 Projeto Open Source em fase de validação acadêmica. Uso livre para testes e desenvolvimento.
-        </div>
-    </div>
-
-    <div class="input-area">
-        <label for="file-input" class="btn-icon" title="Anexar Imagem">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" /></svg>
-        </label>
-        <input type="file" id="file-input" accept="image/*">
-        
-        <button id="btn-mic" class="btn-icon" onclick="alternarGravacao()" title="Falar">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z" /></svg>
-        </button>
-
-        <div id="file-alert" class="file-alert">📸 Imagem <span onclick="limparImagem()" style="color:red;cursor:pointer">✖</span></div>
-
-        <input type="text" id="user-input" placeholder="Digite ou fale...">
-        <button class="btn-enviar" onclick="enviarMensagem()">Enviar</button>
     </div>
 </div>
 
+<!-- Botão instalar -->
+<button id="installBtn">Instalar o Aplicativo</button>
+
 <script>
-    let imagemBase64 = null;
-    let mimeType = null;
-    let somAtivo = false;
-    let vozAtual = null;
-
-    function falarTexto(textoHTML) {
-        if (!somAtivo) return;
-        window.speechSynthesis.cancel();
-        let div = document.createElement("div");
-        div.innerHTML = textoHTML;
-        let textoLimpo = div.textContent || div.innerText || "";
-        vozAtual = new SpeechSynthesisUtterance(textoLimpo);
-        vozAtual.lang = "pt-BR";
-        vozAtual.rate = 1.1; 
-        window.speechSynthesis.speak(vozAtual);
-    }
-
-    function alternarSom() {
-        somAtivo = !somAtivo;
-        const btn = document.getElementById('btn-som');
-        if (somAtivo) {
-            btn.innerText = "🔊";
-            btn.classList.add("som-ativo");
-            falarTexto("Voz ativada.");
-        } else {
-            btn.innerText = "🔇";
-            btn.classList.remove("som-ativo");
-            window.speechSynthesis.cancel();
+    function showPre(input) {
+        const p = document.getElementById('preview');
+        if (input.files && input.files[0]) {
+            const r = new FileReader();
+            r.onload = e => { p.src = e.target.result; p.style.display = 'block'; };
+            r.readAsDataURL(input.files[0]);
         }
     }
 
-    const btnMic = document.getElementById('btn-mic');
-    const userInput = document.getElementById('user-input');
-    let recognition = null;
-    let estaGravando = false;
+    async function send() {
+        const msgIn = document.getElementById('msg');
+        const fileIn = document.getElementById('img-in');
+        const chat = document.getElementById('chat');
 
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.lang = 'pt-BR';
-        recognition.continuous = false;
+        if(!msgIn.value && !fileIn.files[0]) return;
 
-        recognition.onstart = function() {
-            estaGravando = true;
-            btnMic.classList.add('gravando');
-            userInput.placeholder = "Ouvindo...";
+        chat.innerHTML += `<div class="user">${msgIn.value || "Imagem enviada"}</div>`;
+
+        const payload = {
+            msg: msgIn.value
         };
 
-        recognition.onend = function() {
-            estaGravando = false;
-            btnMic.classList.remove('gravando');
-            userInput.placeholder = "Digite ou fale...";
-            if(userInput.value.trim() !== "") enviarMensagem();
-        };
+        msgIn.value = '';
 
-        recognition.onresult = function(event) {
-            userInput.value = event.results[0][0].transcript;
-        };
-    } else {
-        btnMic.style.display = 'none';
-    }
+        try {
+            const res = await fetch('/processar', {
+                method: 'POST',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(payload)
+            });
 
-    function alternarGravacao() {
-        if(estaGravando) recognition.stop();
-        else recognition.start();
-    }
-
-    const chatBox = document.getElementById('chat-box');
-    const loading = document.getElementById('loading');
-    const fileInput = document.getElementById('file-input');
-    const fileAlert = document.getElementById('file-alert');
-
-    function novaConversa() {
-        if(confirm("Deseja apagar tudo?")) {
-            chatBox.innerHTML = '<div class="mensagem verena">Histórico limpo! 🧹</div>';
-            limparImagem();
-            userInput.value = '';
+            const d = await res.json();
+            chat.innerHTML += `<div class="bot">${d.resposta}</div>`;
+        } catch(e) {
+            chat.innerHTML += `<div class="bot">Erro de conexão.</div>`;
         }
+
+        chat.scrollTop = chat.scrollHeight;
     }
 
-    fileInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                imagemBase64 = evt.target.result.split(',')[1];
-                mimeType = evt.target.result.split(';')[0].split(':')[1];
-                fileAlert.style.display = 'flex';
-            };
-            reader.readAsDataURL(file);
-        }
+    /* --------- BOTÃO INSTALAR APP ----------*/
+
+    let deferredPrompt;
+    const installBtn = document.getElementById("installBtn");
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = "block";
     });
 
-    function limparImagem() {
-        fileInput.value = '';
-        imagemBase64 = null;
-        fileAlert.style.display = 'none';
+    installBtn.addEventListener("click", async () => {
+        installBtn.style.display = "none";
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+    });
+
+    /* --------- SERVICE WORKER ----------*/
+
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/service-worker.js");
     }
-
-    function enviarMensagem() {
-        const texto = userInput.value;
-        if (texto.trim() === "" && !imagemBase64) return;
-
-        let htmlUser = `<div class="mensagem usuario">`;
-        if (imagemBase64) htmlUser += `<img src="data:${mimeType};base64,${imagemBase64}" class="img-preview-chat"><br>`;
-        htmlUser += `${texto}</div>`;
-        chatBox.innerHTML += htmlUser;
-        
-        userInput.value = '';
-        loading.style.display = 'block';
-        chatBox.scrollTop = chatBox.scrollHeight;
-
-        fetch('/processar', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ msg: texto, imagem: imagemBase64, tipo: mimeType })
-        })
-        .then(res => res.json())
-        .then(data => {
-            loading.style.display = 'none';
-            chatBox.innerHTML += `<div class="mensagem verena">${data.resposta}</div>`;
-            chatBox.scrollTop = chatBox.scrollHeight;
-            falarTexto(data.resposta); 
-            limparImagem();
-        })
-        .catch(err => {
-            loading.style.display = 'none';
-            chatBox.innerHTML += `<div class="mensagem verena" style="color:red">Erro.</div>`;
-        });
-    }
-
-    userInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') enviarMensagem() });
 </script>
+
 </body>
 </html>
