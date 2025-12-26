@@ -36,8 +36,11 @@
         input[type="text"] { flex: 1; padding: 12px 15px; border: 1px solid #ccc; border-radius: 25px; outline: none; font-size: 1rem; }
         button.btn-enviar { background-color: var(--azul-saude); color: white; border: none; padding: 12px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; }
         .loading { text-align: center; font-style: italic; color: #777; font-size: 0.8rem; display: none; padding: 5px; }
-        /* NOVO ESTILO DO AVISO */
-        .disclaimer { background-color: #fff3cd; color: #856404; padding: 8px; font-size: 0.7rem; text-align: center; border-top: 1px solid #ffeeba; line-height: 1.2; }
+        
+        /* AVISOS LEGAIS */
+        .disclaimer-container { display: flex; flex-direction: column; gap: 0; }
+        .disclaimer-box { background-color: #fff3cd; color: #856404; padding: 8px; font-size: 0.75rem; text-align: center; border-top: 1px solid #ffeeba; line-height: 1.2; }
+        .beta-box { background-color: #e2e3e5; color: #383d41; padding: 5px; font-size: 0.65rem; text-align: center; border-top: 1px solid #d6d8db; }
     </style>
 </head>
 <body>
@@ -67,9 +70,13 @@
     
     <div class="loading" id="loading">Verena está pensando...</div>
 
-    <div class="disclaimer">
-        ⚠️ <strong>Aviso:</strong> Sou uma Inteligência Artificial. Posso cometer erros. 
-        Minhas respostas são educativas e <strong>não substituem consulta médica ou jurídica.</strong>
+    <div class="disclaimer-container">
+        <div class="disclaimer-box">
+            ⚠️ <strong>Aviso:</strong> Sou uma IA educacional. Minhas respostas <strong>não substituem consulta médica ou jurídica.</strong> Em emergências, procure um hospital.
+        </div>
+        <div class="beta-box">
+            🧪 Projeto Open Source em fase de validação acadêmica. Uso livre para testes e desenvolvimento.
+        </div>
     </div>
 
     <div class="input-area">
