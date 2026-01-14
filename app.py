@@ -91,6 +91,7 @@ Explique claramente o direito e o que a família e equipe podem fazer.
 
     3. TRAVA DE SEGURANÇA:
        - Se o estudo internacional sugerir algo que não tem no Brasil, ALERTE: "Estudos internacionais sugerem X, mas o protocolo oficial no Brasil recomenda Y."
+    - SE O MEDICAMENTO FOR ESTRANGEIRO (ex: Adderall, Vicodin) e não tiver registro na ANVISA, responda direto: "Este medicamento não é vendido nas farmácias do Brasil."
 
 
 Explique:
