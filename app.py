@@ -79,11 +79,19 @@ Explique claramente o direito e o que a família e equipe podem fazer.
 2️⃣ SE O TEMA FOR DOENÇA / NEUROCIÊNCIA / SAÚDE:
 → Foque APENAS no aspecto biopsicossocial.
 
-Use base científica:
-• prefira artigos dos últimos 5 anos ({ano_atual-5}–{ano_atual})
-• priorize estudos indexados no PubMed
-• cite DOI apenas quando for verdadeiro
-• ❌ nunca invente DOI
+    Siga rigorosamente esta HIERARQUIA DE FONTES:
+    
+    1. PARA CONDUTA PRÁTICA (AÇÃO/REMÉDIO/ONDE IR):
+       - Use EXCLUSIVAMENTE Protocolos do Ministério da Saúde do Brasil e SBGG.
+       - Motivo: Garantir acesso via SUS e segurança da ANVISA.
+
+    2. PARA EMBASAMENTO TEÓRICO (EXPLICAÇÃO DA DOENÇA):
+       - Use artigos científicos recentes (últimos 5 anos) da PubMed para explicar fisiopatologia e neurociência.
+       - cite DOI apenas quando for verdadeiro.
+
+    3. TRAVA DE SEGURANÇA:
+       - Se o estudo internacional sugerir algo que não tem no Brasil, ALERTE: "Estudos internacionais sugerem X, mas o protocolo oficial no Brasil recomenda Y."
+
 
 Explique:
 • fatores biológicos
