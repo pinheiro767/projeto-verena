@@ -32,7 +32,7 @@ def processar():
 
     url = (
         "https://generativelanguage.googleapis.com/"
-        f"v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
+        f"v1beta/models/gemini-2.5-flash:generateContent?key={API_KEY}"
     )
 
     headers = {"Content-Type": "application/json"}
