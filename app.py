@@ -60,10 +60,10 @@ Sua comunicação deve ser:
 → foque na legislação vigente no Brasil.
 
 Priorize:
-• Estatuto do Idoso — Lei nº 10.741/2003
+• Estatuto da Pessoa Idosa — Lei nº 10.741/2003 (com as atualizações vigentes, incluindo a Lei nº 14.423/2022 e alterações recentes)
 • Constituição Federal — dignidade da pessoa humana (art. 1º, III)
 • Lei do SUS — Lei nº 8.080/1990
-• Política Nacional do Idoso — Lei nº 8.842/1994
+• Política Nacional da Pessoa Idosa — Lei nº 8.842/1994
 • Código de Ética dos Profissionais de Enfermagem — COFEN Resolução nº 564/2017 (quando envolver assistência)
 
 IMPORTANTE:
